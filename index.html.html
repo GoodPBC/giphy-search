@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Giph Search</title>
+	<!-- jquery -->
+	<script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+</head>
+<body>
+	
+	<!-- 
+
+		1.create HTML layout
+		2.create input form with submit button
+		create div for buttons
+		create div for giphs's
+
+		 -->
+
+		 <div class="container">
+  <h1>Search Giphy</h1>
+<!-- Rendered Buttons will get Dumped Here  -->
+  <div id="buttonsView"></div>
+
+<form id="giphy-form">
+    <label for="giphy-input">Add a Sports Legend: </label>
+    <input type="text" id="giphy-input"><br>
+    
+    <!-- Button triggers new movie to be added -->
+    <input id="addGiphy" type="submit" value="Add Sports Legend">
+  </form>
+
+<!-- giphy's get dumped here -->
+  <div id="giphyDiv">
+	
+  </div>
+
+
+
+<script>
+	//create array to hold value of user input
+	//grab value of user input and store in array
+	//create buttons from input value
+	//append buttons to page
+
+	//event listener for buttons 
+	//make api calls from button click
+	//populate info from API call to HTML
+
+	var legends = ["Michael Jordan", "Wayne Gretzky", "Joe Montana", "Reggie Jackson",];
+	
+
+	function displayAPIcall(){
+		var sportsLegend = $(this).attr('data-name');
+		var queryURL = "http://api.giphy.com/v1/gifs/search?q="+sportsLegend+"&limit=10&api_key=dc6zaTOxFJmzC";
+		console.log(sportsLegend);
+		console.log(queryURL);
+		
+
+		$.ajax({url: queryURL, method: 'GET'}).done(function(response) {
+			var stillGiph = response.data[1].images.downsized_still.url;
+			var movingGiph = response.data[1].url;
+	     console.log(movingGiph);
+	     console.log(stillGiph);
+	    console.log('<img src= "'+ stillGiph +'" >');
+	    
+	     $("#giphyDiv").append('<img class="legend-image" src="'+ stillGiph+'" data-still="'+ stillGiph+'" data-animate="'+movingGiph+'" data-state="still">'); 
+
+	     	$('.legend-image').on('click', function(){
+			 var state = $(this).attr('data-state');
+			 if ( state == 'still'){
+                $(this).attr('src', $(this).data('animate'));
+                $(this).attr('data-state', 'animate');
+            }else{
+                $(this).attr('src', $(this).data('still'));
+                $(this).attr('data-state', 'still');
+            }
+    		});		 	
+		});
+
+
+	}
+
+
+
+	function	renderButtons(){  
+
+		$('#buttonsView').empty();
+
+		for(var i = 0; i < legends.length; i++ ){
+		var btn = $('<button>');
+		btn.addClass('sportsLegend-button')
+		btn.text(legends[i]);
+		btn.attr('data-name', legends[i]);
+		btn.css('margin', '10px');
+		$('#buttonsView').append(btn);
+		
+		}
+	}
+
+		$('#addGiphy').on("click", function(){
+			var input = $('#giphy-input').val().trim();
+			
+			legends.push(input);
+
+			renderButtons();  //here we call  renderButtons inside of inputGrab. this applies all of the code from renderButtons to our input variable
+
+			//stops page from refreshing
+			return false;
+		});
+
+		$(document).on('click', '.sportsLegend-button', displayAPIcall);
+		renderButtons();
+
+
+</script>
+
+
+</body>
+</html>
